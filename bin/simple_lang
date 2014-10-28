@@ -56,7 +56,7 @@ machine.run_loop(100, function(i, action){
     console.error(error.message.toString().red);
 });
 
-console.log(machine.memory.toString().yellow)
+console.dir(machine.memory);
 
 //simple helper to display leading zeros.
 //source: http://stackoverflow.com/questions/2998784/how-to-output-integers-with-leading-zeros-in-javascript
