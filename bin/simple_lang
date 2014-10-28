@@ -1,0 +1,67 @@
+#!/usr/bin/env node
+var SimpleLang = require("../src/SimpleLang.js").SimpleLang;
+var ArgumentParser = require("argparse").ArgumentParser;
+var colors = require("colors");
+var fs = require("fs");
+
+var parser = new ArgumentParser({
+  version: '0.0.1',
+  addHelp:true,
+  description: 'SimpleLang CLI'
+});
+
+
+parser.addArgument(["program"], {help: "A string or path to a text file to run. "});
+parser.addArgument(["-m", "--memory"], {nargs: "*", type:"int", help:"Intial Memory of the machine. If a single integer, assumed to be the memory length. "}, {help:"A program to run. "});
+
+var args = parser.parseArgs();
+
+var mem_length = 0;
+var mem_value = false;
+
+//check what the memory is supposed to be
+if(!args.memory){
+    mem_length = 16;
+} else if(args.memory.length == 1){
+    mem_length = args.memory[0];
+} else {
+    mem_length = args.memory.length;
+    mem_value = args.memory;
+}
+
+if (fs.existsSync(args.program)) {
+    try{
+        args.program = fs.readFileSync(args.program).toString();
+    } catch(e){
+        console.error(("Unable to read file "+args.program).red);
+        process.exit(1);
+    }
+}
+
+try{
+    var machine = new SimpleLang(args.program, mem_length);
+} catch(e){
+    console.error(e.message.red);
+    process.exit(1);
+}
+
+
+if(mem_value){
+    machine.memory = mem_value;
+}
+
+machine.run_loop(100, function(i, action){
+    console.log(pad(i, 3)+" "+action);
+}, function(error){
+    console.error(error.message.toString().red);
+});
+
+console.log(machine.memory.toString().yellow)
+
+//simple helper to display leading zeros.
+//source: http://stackoverflow.com/questions/2998784/how-to-output-integers-with-leading-zeros-in-javascript
+function pad(num, size) {
+    var s = num+"";
+    while (s.length < size) s = "0" + s;
+    return s;
+}

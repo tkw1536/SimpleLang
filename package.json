@@ -6,9 +6,13 @@
   "directories": {
     "doc": "docs"
   },
+  "bin": {
+    "simple_lang": "bin/simple_lang"
+  },
   "author": "Tom Wiesing <tkw01536@gmail.com>",
   "license": "MIT",
-  "devDependencies": {
+  "dependencies": {
+    "argparse": "^0.1.15",
     "colors": "^1.0.3"
   }
 }

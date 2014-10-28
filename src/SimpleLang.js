@@ -3,7 +3,7 @@
     /**
     * Represents a SimpleLang Machine.
     *
-    * @param {SimpleLang.ProgramLine[]} program - Program to run.
+    * @param {string|SimpleLang.ProgramLine[]} program - Program to run.
     * @param {number} memory_size - Size of memory.
     *
     * @return {SimpleLang} - this for chaining
@@ -18,7 +18,7 @@
         * @name SimpleLang#program
         * @type {SimpleLang.ProgramLine[]}
         */
-        this.program = program;
+        this.program = SimpleLang.parse(program);
 
         /**
         * The current memory of the machine.
@@ -51,6 +51,54 @@
         * @type {boolean}
         */
         this.is_halted = false;
+    }
+
+    /**
+    * Parses a program.
+    * @param {string|SimpleLang.ProgramLine[]} Program to parse.
+    * @returns {SimpleLang.ProgramLine[]} - The program to run.
+    */
+    SimpleLang.parse = function(program_string){
+        //we are already a program => return
+        if(typeof program_string !== "string"){
+            return program_string;
+        }
+
+        //split by spaces.
+        var program = program_string.replace(/(\s|\n)+/gm, " ").trim().toString().split(" ");
+
+        //intialise the array
+        var lineArray = [];
+
+        var instr, op, abs;
+
+        for(var i=0;i<program.length - 1;i+=2){
+            instr = program[i].toUpperCase();
+            op = program[i+1];
+
+            //we do not know this instruction
+            if(!SimpleLang.instructions.hasOwnProperty(instr)){
+                throw new Error("Expected valid instruction at token "+i);
+            }
+
+            if(op[0] == "#"){
+                abs = true;
+                op = op.substring(1);
+            } else {
+                abs = false;
+            }
+
+            op = parseInt(op);
+
+            if(isNaN(op)){
+                throw new Error("Expected valid number at token "+i);
+            }
+
+            lineArray.push([instr, abs, op]);
+        }
+
+        return lineArray;
+
     }
 
     /**
