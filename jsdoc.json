@@ -1,0 +1,17 @@
+{
+    "tags": {
+        "allowUnknownTags": true
+    },
+    "source": {
+        "include": ["src/SimpleLang.js", "README.md"],
+        "exclude": ["node_modules"],
+        "includePattern": ".+\\.js(doc)?$",
+        "excludePattern": "(^|\\/|\\\\)_"
+    },
+    "opts": {
+        "destination": "docs",
+        "recurse": true,
+        "template": "lib/jaguarjs-jsdoc",
+        "private": true
+    }
+}

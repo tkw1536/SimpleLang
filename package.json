@@ -1,0 +1,14 @@
+{
+  "name": "SimpleLang",
+  "version": "1.0.0",
+  "description": "A really simple Interpreter written for GenICT. ",
+  "main": "src/SimpleLang.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "author": "Tom Wiesing <tkw01536@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "colors": "^1.0.3"
+  }
+}

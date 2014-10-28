@@ -1,0 +1,21 @@
+{
+  "name": "SimpleLang",
+  "version": "0.0.0",
+  "homepage": "https://github.com/tkw1536/SimpleLang",
+  "authors": [
+    "Tom Wiesing <tkw01536@gmail.com>"
+  ],
+  "description": "A really simple Interpreter written for GenICT.",
+  "main": "src/SimpleLang.js",
+  "moduleType": [
+    "node"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
