@@ -1,6 +1,6 @@
 {
   "name": "simplelang",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A really simple Interpreter written for GenICT. ",
   "main": "src/SimpleLang.js",
   "directories": {

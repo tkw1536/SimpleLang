@@ -65,7 +65,10 @@
         }
 
         //split by spaces.
-        var program = program_string.replace(/(\s|\n)+/gm, " ").trim().toString().split(" ");
+        var program =
+        program_string
+        .replace(/HALT(?!(\s|\n)+#?\d+)/ig, "HALT #0")
+        .replace(/(\s|\n)+/gm, " ").trim().toString().split(" ");
 
         //intialise the array
         var lineArray = [];
@@ -324,6 +327,7 @@
                 break;
             case "HALT":
                 state_string += "HALT";
+                op_string = "";
                 this.is_halted = true;
                 break;
 
