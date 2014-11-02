@@ -97,8 +97,56 @@
             lineArray.push([instr, abs, op]);
         }
 
+        if(program.length % 2 !== 0){
+            throw new Error("Unexpected end of input, need one more token after position "+i);
+        }
+
         return lineArray;
 
+    }
+
+    /**
+    * Explains a single line of a program in human-readable form.
+    * @param {SimpleLang.ProgramLine} line - Line to convert
+    * @returns {string}
+    */
+    SimpleLang.explainLine = function(line){
+        var code = line[0];
+        var is_abs = line[1];
+        var op = line[2];
+
+        switch(code){
+            case "LOAD":
+                if(is_abs){
+                    return "Load the value "+op+" into the accumulator";
+                } else {
+                    return "Load the value of memory location "+op+" into the accumulator";
+                }
+            case "STORE":
+                return "Store the value of the accumulator in memory location "+op;
+            case "ADD":
+                if(is_abs){
+                    return "Add the value "+op+" to the accumulator";
+                } else {
+                    return "Add the value of memory location "+op+" to the accumulator";
+                }
+            case "SUB":
+                if(is_abs){
+                    return "Subtract the value "+op+" from the accumulator";
+                } else {
+                    return "Subtract the value of memory location "+op+" from the accumulator";
+                }
+            case "EQUAL":
+                if(is_abs){
+                    return "Skip next instruction if accumulator equal to "+op;
+                } else {
+                    return "Skip next instruction if accumulator equal to memory location "+op;
+                }
+            case "JUMP":
+                return "Jump to instruction "+op+" (set program counter to "+op+")";
+            case "HALT":
+                return "Stop execution";
+        }
     }
 
     /**
@@ -157,6 +205,10 @@
                 on_error(e);
                 break;
             }
+        }
+
+        if(!this.isHalted()){
+            on_error(new Error("(INSTR_LIMIT_REACHED) Maximum number of instructions exceeded"));
         }
 
         return i;
@@ -290,6 +342,66 @@
     }
 
     /**
+    * Turns the program of this machine into a string.
+    * @param {number} bytes - Number of bytes to print for arguments.
+    * @param {boolean} [latex = false] - Should we return some nice latex?
+    * @this {SimpleLang}
+    * @returns {string} - Program String.
+    */
+    SimpleLang.prototype.toProgramString = function(bytes, latex){
+
+        var instruction;
+
+        //string to return
+        var str = "";
+
+        if(latex){
+
+            str += "\\begin{tabular}{| l | l | l | l |}\n";
+            str += "\\hline\n";
+            str += "\\# & \\textbf{Machine Code} & \\textbf{Assembly Code} & \\textbf{Description} \\\\\\hline\n";
+
+            for(var i=0;i<this.program.length;i++){
+                instruction = this.program[i];
+
+                str += ""+(i+1)+" & "
+
+                str += SimpleLang.instructions[instruction[0]] + "\\ "
+                str += ((instruction[1])?"1":"0") + "\\ "
+                str += pad(instruction[2].toString(2), bytes)
+
+                str += " & "
+
+                str += pad_s(instruction[0], 6).replace(" ", "\\ ");
+
+                if(instruction[0] !== "HALT"){
+                    str+= ((instruction[1])?"\\#":"")+instruction[2] + " & "
+                } else {
+                    str += " & "
+                }
+
+                str += SimpleLang.explainLine(instruction);
+
+                str += "\\\\\n";
+            }
+
+            str += "\\hline\\end{tabular}";
+        } else {
+            //Do it the ugly way
+            for(var i=0;i<this.program.length;i++){
+                instruction = this.program[i];
+                str += SimpleLang.instructions[instruction[0]]
+                str += ((instruction[1])?"1":"0")
+                str += pad(instruction[2].toString(2), bytes)
+
+                str += "\n";
+            }
+        }
+
+        return str;
+    }
+
+    /**
     * The state of a SimpleLang machine
     * @typedef {Object} SimpleLang.state
     * @property {number[]} memory - Memory of the machine.
@@ -311,19 +423,19 @@
     */
     SimpleLang.instructions = {
         /** Loads the operand into the accumalator. */
-        "LOAD": "LOAD",
+        "LOAD": "001",
         /** Stores the accumalator value in memory. */
-        "STORE": "STORE",
+        "STORE": "010",
         /** Adds the operand value to the accumalator. */
-        "ADD": "ADD",
+        "ADD": "011",
         /** Subtracts the operand value from the accumalator. */
-        "SUB": "SUB",
+        "SUB": "100",
         /** Jumps the next instruction iff the accumalator value equals the operand. */
-        "EQUAL": "EQUAL",
+        "EQUAL": "101",
         /** Jumps to the instruction specefied by the operand. */
-        "JUMP": "JUMP",
+        "JUMP": "110",
         /** Halts this machine. */
-        "HALT": "HALT"
+        "HALT": "111"
     }
 
     //simple helper to display leading zeros.
@@ -331,6 +443,13 @@
     function pad(num, size) {
         var s = num+"";
         while (s.length < size) s = "0" + s;
+        return s;
+    }
+
+    //simple helper to make a strsing of fixed length
+    function pad_s(s, size) {
+        var s = s;
+        while (s.length < size) s = s+" ";
         return s;
     }
 

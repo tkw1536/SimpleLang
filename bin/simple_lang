@@ -10,9 +10,22 @@ var parser = new ArgumentParser({
   description: 'SimpleLang CLI'
 });
 
-
+//The Program
 parser.addArgument(["program"], {help: "A string or path to a text file to run. "});
-parser.addArgument(["-m", "--memory"], {nargs: "*", type:"int", help:"Intial Memory of the machine. If a single integer, assumed to be the memory length. "}, {help:"A program to run. "});
+
+//The memory + initial state
+parser.addArgument(["-m", "--memory"], {nargs: "*", type:"int", help:"Intial Memory of the machine. If a single integer, assumed to be the memory length. "});
+
+parser_type = parser.addMutuallyExclusiveGroup({help:"What to do"})
+parser_type.addArgument(["-c", "--compile"], {action: 'storeTrue', help: "Compile and perform syntax check only. "});
+parser_type.addArgument(["-cl", "--compile-latex"], {action: 'storeTrue', help: "Compile to a nice latex-readable string. "});
+parser_type.addArgument(["-r", "--run"], {action: 'storeTrue', help: "Compile and run code. "});
+
+
+//parameters
+parser.addArgument(["-l", "--limit"], {type:"int", defaultValue: 10000, help: "Maximal number of steps to perform. "});
+parser.addArgument(["-q", "--quiet"], {action: 'storeTrue', help: "Do not print instructions executed. "});
+parser.addArgument(["-cb", "--compile-bytes"], {type:"int", defaultValue: 4, help: "Number of bytes for integer value to compile. "});
 
 var args = parser.parseArgs();
 
@@ -41,7 +54,15 @@ if (fs.existsSync(args.program)) {
 try{
     var machine = new SimpleLang(args.program, mem_length);
 } catch(e){
-    console.error(e.message.red);
+    console.error(("(SYNTAX_ERROR) "+e.message).red);
+    process.exit(1);
+}
+
+if(args.compile){
+    console.log(machine.toProgramString(args.compile_bytes));
+    process.exit(0);
+} else if(args.compile_latex){
+    console.log(machine.toProgramString(args.compile_bytes, true));
     process.exit(1);
 }
 
@@ -50,8 +71,10 @@ if(mem_value){
     machine.memory = mem_value;
 }
 
-machine.run_loop(100, function(i, action){
-    console.log(pad(i, 3)+" "+action);
+machine.run_loop(args.limit, function(i, action){
+    if(!args.quiet){
+        console.log(pad(i, 3)+" "+action);
+    }
 }, function(error){
     console.error(error.message.toString().red);
 });
