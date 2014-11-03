@@ -368,7 +368,7 @@
             for(var i=0;i<this.program.length;i++){
                 instruction = this.program[i];
 
-                str += ""+(i+1)+" & "
+                str += ""+(i)+" & "
 
                 str += SimpleLang.instructions[instruction[0]] + "\\ "
                 str += ((instruction[1])?"1":"0") + "\\ "
